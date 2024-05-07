@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 
 const Tree = [
@@ -126,25 +128,74 @@ const App = () => {
   };
 
 
+  const findIndexInTree = (node, tree, parentIndex = '') => {
+    for (let i = 0; i < tree.length; i++) {
+      const element = tree[i];
+      const currentIndex = parentIndex ? `${parentIndex}.${i}` : `${i}`;
 
-  const handleCheck = (node, isChecked, parentIndex = '') => {
-    const updatedCheckbox = { ...checkbox };
-    console.log(node);
+      if (element.name === node.name) {
+        return currentIndex;
+      }
 
-    function updateChildCheckbox(children, parentIndex = '') {
-      children.forEach((child, index) => {
-        const checkboxKey = parentIndex !== '' ? `${parentIndex}.${index}` : `${index}`;
-        console.log(checkboxKey);
-        updatedCheckbox[checkboxKey] = isChecked;
-        if (child.children && child.children.length > 0) {
-          updateChildCheckbox(child.children, checkboxKey);
+      if (element.children && element.children.length > 0) {
+        const childIndex = findIndexInTree(node, element.children, currentIndex);
+        if (childIndex !== null) {
+          return childIndex;
         }
-      });
+      }
+    }
+    return null;
+  };
+
+    const handleCheck = (node, isChecked, parentIndex = '') => {
+      const updatedCheckbox = { ...checkbox };
+      console.log(node);
+
+      const nodeIndex = findIndexInTree(node, Tree);
+      if (nodeIndex === null) {
+        console.error('Node not found in the tree');
+      }
+      console.log(nodeIndex);
+
+
+      function updateChildCheckbox(children, parentIndex = '') {
+        children.forEach((child, index) => {
+          const childCheckboxKey = parentIndex !== '' ? `${parentIndex}.${index}` : `${index}`;
+          updatedCheckbox[childCheckboxKey] = isChecked;
+          if (child.children && child.children.length > 0) {
+            updateChildCheckbox(child.children, childCheckboxKey);
+          }
+        });
+      }
+
+      if (!isChecked) {
+        let parentCheckboxKey = nodeIndex;
+        while (parentCheckboxKey) {
+          updatedCheckbox[parentCheckboxKey] = false;
+          parentCheckboxKey = getParentCheckboxKey(parentCheckboxKey);
+        }
+      }
+      if (isChecked) {
+        let parentCheckboxKey = nodeIndex;
+        while (parentCheckboxKey) {
+          updatedCheckbox[parentCheckboxKey] = true;
+          parentCheckboxKey = getParentCheckboxKey(parentCheckboxKey);
+        }
+      }
+
+      updatedCheckbox[nodeIndex] = isChecked;
+      updateChildCheckbox(node.children, nodeIndex);
+      setCheckbox(updatedCheckbox);
     }
 
-    updateChildCheckbox([node], parentIndex);
-    setCheckbox(updatedCheckbox);
-  };
+
+    function getParentCheckboxKey(checkboxKey) {
+      const lastDotIndex = checkboxKey.lastIndexOf('.');
+      if (lastDotIndex !== -1) {
+        return checkboxKey.slice(0, lastDotIndex);
+      }
+      return null;
+    }
 
 
   return (
