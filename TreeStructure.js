@@ -106,7 +106,7 @@ const ShowData = (data, openNodes, checkbox, handleCheck, handleClick, parentInd
       childrenData.push(
         <div key={index} style={{ marginLeft: "20px", marginTop: "10px" }}>
           <input type='checkbox' checked={isCheckedd} onChange={handleChange} />
-          <button onClick={() => handleClick(element.name, index)}>{element.name}</button>
+          <button onClick={() => handleClick(element, index)}>{element.name}</button>
           {isOpen && ShowData(element.children, openNodes, checkbox, handleCheck, handleClick, checkboxKey)}
         </div>
       );
@@ -120,10 +120,10 @@ const App = () => {
   const [openNodes, setOpenNodes] = React.useState({});
   const [checkbox, setCheckbox] = React.useState({});
 
-  const handleClick = (nodeName, index) => {
+  const handleClick = (node, index) => {
     setOpenNodes(prevOpenNodes => ({
       ...prevOpenNodes,
-      [`${nodeName}.${index}`]: !prevOpenNodes[`${nodeName}.${index}`]
+      [`${node.name}.${index}`]: !prevOpenNodes[`${node.name}.${index}`]
     }));
   };
 
@@ -133,7 +133,7 @@ const App = () => {
       const element = tree[i];
       const currentIndex = parentIndex ? `${parentIndex}.${i}` : `${i}`;
 
-      if (element.name === node.name) {
+      if (element === node) {
         return currentIndex;
       }
 
@@ -175,6 +175,8 @@ const App = () => {
           parentCheckboxKey = getParentCheckboxKey(parentCheckboxKey);
         }
       }
+
+
       if (isChecked) {
         let parentCheckboxKey = nodeIndex;
         while (parentCheckboxKey) {
@@ -206,3 +208,5 @@ const App = () => {
 };
 
 export default App;
+
+
